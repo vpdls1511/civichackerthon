@@ -12,11 +12,12 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme">
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCQh6UdmNqorpUcRVwhEl0HlU_j3XRpPfY"/>
+            android:value="AIzaSyBi31oi9hTG6zTenxGHHo3SZxgT5O8laGU"/>
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name">

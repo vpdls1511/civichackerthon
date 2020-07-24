@@ -46,7 +46,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.converter.simplexml.SimpleXmlConverterFactory;
 
 public class HomeFragment extends Fragment implements OnMapReadyCallback, LocationListener, GoogleMap.OnMarkerClickListener{
 
@@ -64,8 +63,6 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
 
     private String BaseUrl = "http://openapi.mapo.go.kr:8088/";
 
-
-    //   http://openapi.mapo.go.kr:8088/4670616c486e677937367268495350/json/MpDisinfectionInfo/1/5
     double lat, lot;
 
 
@@ -79,12 +76,12 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
 
         View root = inflater.inflate(R.layout.fragment_home, container, false);
 
-        retrofitInit();
-
-
        final LocationManager lm = (LocationManager) root.getContext().getSystemService(Context.LOCATION_SERVICE);
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        retrofitInit();
+
 
         Button button1 = root.findViewById(R.id.button1);
         button1.setOnClickListener(new View.OnClickListener() {
@@ -100,6 +97,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
 
     public void retrofitInit(){
 
+
         mGson = new GsonBuilder()
                 .setLenient()
                 .create();
@@ -113,6 +111,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
 
         Call<RetrofitRepo> call = mRetrofitAPI.getRowList();
 
+        Log.e(TAG,"RETROFIT TEST");
 
         call.enqueue(new Callback<RetrofitRepo>() {
             @Override
@@ -122,7 +121,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
                 for(int i = 0 ; i < repo.size() ; i++){
                     String addr = repo.get(i).getADDR();
                     Log.d(TAG, addr);
-                    if(addr != "") geoCode(addr, repo.get(i).getRESIORGZNM(), repo.get(i).getTELNO());
+                    geoCode(addr, repo.get(i).getRESIORGZNM(), repo.get(i).getTELNO());
                 }
 
             }
@@ -153,7 +152,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
 
     private void gpsBtn(LocationManager lm) {
         if ( Build.VERSION.SDK_INT >= 23 &&
-                ContextCompat.checkSelfPermission( getActivity().getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
+                ContextCompat.checkSelfPermission( getContext().getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION ) != PackageManager.PERMISSION_GRANTED ) {
             ActivityCompat.requestPermissions( getActivity(), new String[] {  android.Manifest.permission.ACCESS_FINE_LOCATION  },
                     0 );
         }
@@ -192,7 +191,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
         LatLng lng = new LatLng(lat, lot);
 
         mMap.moveCamera(CameraUpdateFactory.newLatLng(lng));
-        mMap.animateCamera(CameraUpdateFactory.zoomTo(15));
+        mMap.animateCamera(CameraUpdateFactory.zoomTo(10));
 
     }
 
@@ -215,6 +214,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback, Locati
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        onMapCustomMarker(37.5561451,126.9470937,  "현위치", "");
+        mapFocus(37.5561451 , 126.9470937);
     }
 
     final LocationListener gpsLocationListener = new LocationListener() {
