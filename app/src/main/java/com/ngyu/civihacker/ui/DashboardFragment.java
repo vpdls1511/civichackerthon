@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -18,6 +19,7 @@ import com.google.gson.GsonBuilder;
 import com.ngyu.civihacker.R;
 import com.ngyu.civihacker.lib.adpater.Data;
 import com.ngyu.civihacker.lib.adpater.RecyclerViewAdapter;
+import com.ngyu.civihacker.lib.adpater.distData;
 import com.ngyu.civihacker.lib.service.RetrofitApi;
 import com.ngyu.civihacker.lib.service.RetrofitRepo;
 import com.ngyu.civihacker.lib.service.Row;
@@ -25,6 +27,9 @@ import com.ngyu.civihacker.lib.service.Row;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import retrofit2.Call;
@@ -40,6 +45,7 @@ public class DashboardFragment extends Fragment {
 
     private List<Double> lngList = new ArrayList<>();
 
+
     private boolean flag = true;
     private Gson mGson;
     private Retrofit mRetrofit;
@@ -54,7 +60,6 @@ public class DashboardFragment extends Fragment {
         View root = inflater.inflate(R.layout.fragment_dashboard, container, false);
 
         init(root);
-
         getData();
 
         return root;
@@ -98,6 +103,8 @@ public class DashboardFragment extends Fragment {
         final List<String> listTitle = new ArrayList<>();
         final List<String> listAddr = new ArrayList<>();
         final List<String> listContent = new ArrayList<>();
+        final List<Double> lngCount = new ArrayList<>();
+        final List<distData> distDataList = new ArrayList<>();
 
 
         mGson = new GsonBuilder()
@@ -116,6 +123,8 @@ public class DashboardFragment extends Fragment {
             @Override
             public void onResponse(Call<RetrofitRepo> call, Response<RetrofitRepo> response) {
 
+
+
                 double distanceKiloMeter = 0;
                 List<Row> repo = response.body().getMpDisinfectionInfo().getRow();
 
@@ -129,32 +138,48 @@ public class DashboardFragment extends Fragment {
                     lngList = new ArrayList<>();
                     geoCode(repo.get(i).getADDR());
 
+
+                    /*****************
                     Data data = new Data();
+
                     data.setTitle(listTitle.get(i));
                     data.setAddr(listAddr.get(i));
                     data.setContent(listContent.get(i));
+                    data.setDis(String.format("%.2f", distanceKiloMeter) + " KM");
+                     ********/
 
-                    if(flag == true){
-                        distanceKiloMeter = distance(37.5561451, 126.9470937, lngList.get(0), lngList.get(1), "kilometer");
-                        Log.d("distance  : ", lngList.toString() );
-                        data.setDis( String.format("%.2f", distanceKiloMeter) + " KM");
-                    }
+                    if (flag == true) distanceKiloMeter = distance(37.5561451, 126.9470937, lngList.get(0), lngList.get(1), "kilometer");
+                    Log.d("distance  : ", lngList.toString() );
+                    lngCount.add(distanceKiloMeter);
                     Log.e("error" , listTitle.get(i) + " 거리 : " +  distanceKiloMeter);
 
 
-                    adapter.addItem(data);
+                    distDataList.add(new distData(listTitle.get(i), listTitle.get(i), listContent.get(i), lngCount.get(i)));
+                }
+                Collections.sort(distDataList);
+                for(distData d : distDataList){
+                    Data data = new Data();
 
+                    data.setTitle(d.title());
+                    data.setAddr(d.addr());
+                    data.setContent(d.content());
+                    data.setDis(String.format("%.2f",d.dis()) + " km");
+
+                    adapter.addItem(data);
                     adapter.notifyDataSetChanged();
                 }
 
-
-            }
+           }
 
             @Override
             public void onFailure(Call<RetrofitRepo> call, Throwable t) {
                 Log.e("error" , t.toString());
             }
+
+
         });
+
+
 
     }
 
