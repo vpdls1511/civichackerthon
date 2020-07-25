@@ -122,40 +122,49 @@ public class DashboardFragment extends Fragment {
         call.enqueue(new Callback<RetrofitRepo>() {
             @Override
             public void onResponse(Call<RetrofitRepo> call, Response<RetrofitRepo> response) {
-
-
+                int j=0;
 
                 double distanceKiloMeter = 0;
                 List<Row> repo = response.body().getMpDisinfectionInfo().getRow();
 
                 for(int i = 0 ; i < repo.size() ; i++){
-
-                    listTitle.add(repo.get(i).getRESIORGZNM().toString());
-                    listAddr.add(repo.get(i).getADDR());
-                    listContent.add(repo.get(i).getTELNO());
-
-                    flag = true;
-                    lngList = new ArrayList<>();
-                    geoCode(repo.get(i).getADDR());
+                    if(repo.get(i).getADDR().equals(null) || repo.get(i).getADDR().equals(" ") || repo.get(i).getADDR().equals("")){
+                        Log.d("데이터가 없다구요","쉬부");
+                    }else{
 
 
-                    /*****************
-                    Data data = new Data();
+                        flag = true;
+                        lngList = new ArrayList<>();
+                        geoCode(repo.get(i).getADDR());
 
-                    data.setTitle(listTitle.get(i));
-                    data.setAddr(listAddr.get(i));
-                    data.setContent(listContent.get(i));
-                    data.setDis(String.format("%.2f", distanceKiloMeter) + " KM");
-                     ********/
+                        /*****************
+                         Data data = new Data();
 
-                    if (flag == true) distanceKiloMeter = distance(37.5561451, 126.9470937, lngList.get(0), lngList.get(1), "kilometer");
-                    Log.d("distance  : ", lngList.toString() );
-                    lngCount.add(distanceKiloMeter);
-                    Log.e("error" , listTitle.get(i) + " 거리 : " +  distanceKiloMeter);
+                         data.setTitle(listTitle.get(i));
+                         data.setAddr(listAddr.get(i));
+                         data.setContent(listContent.get(i));
+                         data.setDis(String.format("%.2f", distanceKiloMeter) + " KM");
+                         ********/
+
+                        if (flag == true){
+                            distanceKiloMeter = distance(37.5561451, 126.9470937, lngList.get(0), lngList.get(1), "kilometer");
+
+                            Log.d("distance  : ", lngList.toString() );
+
+                            listTitle.add(repo.get(j).getRESIORGZNM());
+                            listAddr.add(repo.get(j).getADDR());
+                            listContent.add(repo.get(j).getTELNO());
+                            lngCount.add(distanceKiloMeter);
+
+                            Log.e("error" , listTitle.get(j) + " 거리 : " +  distanceKiloMeter);
 
 
-                    distDataList.add(new distData(listTitle.get(i), listTitle.get(i), listContent.get(i), lngCount.get(i)));
+                            distDataList.add(new distData(listTitle.get(j), listTitle.get(j), listContent.get(j), lngCount.get(j)));
+                            j++;
+                        }
+                    }
                 }
+
                 Collections.sort(distDataList);
                 for(distData d : distDataList){
                     Data data = new Data();
